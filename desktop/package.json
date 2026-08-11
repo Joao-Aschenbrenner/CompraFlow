@@ -1,0 +1,47 @@
+{
+  "name": "compraflow-desktop",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Cliente desktop Electron para o CompraFlow",
+  "author": "Joao Aschenbrenner",
+  "license": "MIT",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "check": "node --check main.js && node --check preload.js && node --check renderer/app.js",
+    "dist:win": "electron-builder --win nsis portable --x64"
+  },
+  "devDependencies": {
+    "electron": "43.2.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "br.com.jaaschenbrenner.compraflow",
+    "productName": "CompraFlow",
+    "asar": true,
+    "directories": { "output": "dist" },
+    "files": ["main.js", "preload.js", "renderer/**/*", "package.json"],
+    "extraResources": [
+      { "from": "runtime/backend/compraflow.jar", "to": "backend/compraflow.jar" },
+      { "from": "runtime/jre", "to": "jre" }
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "CompraFlow",
+      "artifactName": "CompraFlow-Setup-${version}-${arch}.${ext}"
+    },
+    "portable": {
+      "artifactName": "CompraFlow-Portable-${version}-${arch}.${ext}"
+    }
+  }
+}

@@ -1,0 +1,101 @@
+name: Desktop Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'desktop/**'
+      - 'src/**'
+      - 'pom.xml'
+      - '.github/workflows/desktop-release.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    timeout-minutes: 35
+    env:
+      DESKTOP_TAG: v1.1.0-desktop
+      CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Test and package Spring backend
+        run: mvn -B clean package
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Validate Electron sources
+        working-directory: desktop
+        run: npm run check
+
+      - name: Install Electron dependencies
+        working-directory: desktop
+        run: npm install --no-audit --no-fund
+
+      - name: Prepare backend resource
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path desktop/runtime/backend | Out-Null
+          Copy-Item target/compraflow-1.0.0.jar desktop/runtime/backend/compraflow.jar
+
+      - name: Download bundled Temurin JRE 21
+        shell: pwsh
+        run: |
+          $ApiUrl = 'https://api.adoptium.net/v3/binary/latest/21/ga/windows/x64/jre/hotspot/normal/eclipse'
+          $Zip = Join-Path $env:RUNNER_TEMP 'temurin-jre21.zip'
+          $Extract = Join-Path $env:RUNNER_TEMP 'temurin-jre21'
+          Invoke-WebRequest -Uri $ApiUrl -OutFile $Zip
+          Expand-Archive -Path $Zip -DestinationPath $Extract -Force
+          $Root = Get-ChildItem -Path $Extract -Directory | Select-Object -First 1
+          if (-not $Root) { throw 'JRE Temurin não foi extraído corretamente.' }
+          if (Test-Path desktop/runtime/jre) { Remove-Item desktop/runtime/jre -Recurse -Force }
+          Copy-Item $Root.FullName desktop/runtime/jre -Recurse
+          & desktop/runtime/jre/bin/java.exe -version
+
+      - name: Build Windows installer and portable executable
+        working-directory: desktop
+        run: npm run dist:win
+
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: CompraFlow-Desktop-Windows
+          path: desktop/dist/*.exe
+          if-no-files-found: error
+
+      - name: Create or update GitHub pre-release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $assets = Get-ChildItem desktop/dist/*.exe
+          if (-not $assets) { throw 'Nenhum executável foi produzido.' }
+
+          gh release view $env:DESKTOP_TAG 2>$null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create $env:DESKTOP_TAG `
+              --target $env:GITHUB_SHA `
+              --title 'CompraFlow Desktop v1.1.0 - Teste' `
+              --prerelease `
+              --notes 'Primeira versão desktop para testes. Inclui backend Spring Boot, banco H2 persistente e JRE 21 embutido. Disponível como instalador NSIS e executável Portable.'
+          }
+
+          foreach ($asset in $assets) {
+            gh release upload $env:DESKTOP_TAG $asset.FullName --clobber
+          }
