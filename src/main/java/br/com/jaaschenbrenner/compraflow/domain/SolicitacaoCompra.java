@@ -93,6 +93,27 @@ public class SolicitacaoCompra {
         this.itens.add(item);
     }
 
+    public void atualizarRascunho(String solicitante, String departamento, String justificativa,
+                                  CriterioCotacao criterioAvaliacao, List<ItemSolicitacao> novosItens) {
+        garantirRascunho("editar");
+        this.solicitante = solicitante;
+        this.departamento = departamento;
+        this.justificativa = justificativa;
+        this.criterioAvaliacao = criterioAvaliacao;
+        this.itens.clear();
+        novosItens.forEach(this::adicionarItem);
+    }
+
+    public void validarExclusao() {
+        garantirRascunho("excluir");
+    }
+
+    private void garantirRascunho(String operacao) {
+        if (status != StatusSolicitacao.RASCUNHO) {
+            throw new RegraNegocioException("Somente solicitações em RASCUNHO podem ser " + operacao + "adas.");
+        }
+    }
+
     public void abrirCotacao() {
         if (status != StatusSolicitacao.RASCUNHO) {
             throw new RegraNegocioException("Somente solicitações em RASCUNHO podem ser abertas para cotação.");
@@ -132,63 +153,19 @@ public class SolicitacaoCompra {
         this.status = StatusSolicitacao.REJEITADA;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getCodigo() {
-        return codigo;
-    }
-
-    public String getSolicitante() {
-        return solicitante;
-    }
-
-    public String getDepartamento() {
-        return departamento;
-    }
-
-    public String getJustificativa() {
-        return justificativa;
-    }
-
-    public StatusSolicitacao getStatus() {
-        return status;
-    }
-
-    public CriterioCotacao getCriterioAvaliacao() {
-        return criterioAvaliacao;
-    }
-
-    public LocalDateTime getCriadaEm() {
-        return criadaEm;
-    }
-
-    public Long getCotacaoSelecionadaId() {
-        return cotacaoSelecionadaId;
-    }
-
-    public BigDecimal getValorSelecionadoBrl() {
-        return valorSelecionadoBrl;
-    }
-
-    public NivelAprovacao getNivelAprovacaoExigido() {
-        return nivelAprovacaoExigido;
-    }
-
-    public NivelAprovacao getNivelAprovador() {
-        return nivelAprovador;
-    }
-
-    public String getObservacaoDecisao() {
-        return observacaoDecisao;
-    }
-
-    public LocalDateTime getDecididaEm() {
-        return decididaEm;
-    }
-
-    public List<ItemSolicitacao> getItens() {
-        return Collections.unmodifiableList(itens);
-    }
+    public Long getId() { return id; }
+    public String getCodigo() { return codigo; }
+    public String getSolicitante() { return solicitante; }
+    public String getDepartamento() { return departamento; }
+    public String getJustificativa() { return justificativa; }
+    public StatusSolicitacao getStatus() { return status; }
+    public CriterioCotacao getCriterioAvaliacao() { return criterioAvaliacao; }
+    public LocalDateTime getCriadaEm() { return criadaEm; }
+    public Long getCotacaoSelecionadaId() { return cotacaoSelecionadaId; }
+    public BigDecimal getValorSelecionadoBrl() { return valorSelecionadoBrl; }
+    public NivelAprovacao getNivelAprovacaoExigido() { return nivelAprovacaoExigido; }
+    public NivelAprovacao getNivelAprovador() { return nivelAprovador; }
+    public String getObservacaoDecisao() { return observacaoDecisao; }
+    public LocalDateTime getDecididaEm() { return decididaEm; }
+    public List<ItemSolicitacao> getItens() { return Collections.unmodifiableList(itens); }
 }

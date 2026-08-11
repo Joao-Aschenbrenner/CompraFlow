@@ -4,9 +4,11 @@ import java.net.URI;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,6 +53,20 @@ public class SolicitacaoController {
     @Operation(summary = "Buscar solicitação por ID")
     public SolicitacaoResponse buscar(@PathVariable Long id) {
         return facade.buscarSolicitacao(id);
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "Editar solicitação em rascunho")
+    public SolicitacaoResponse atualizar(@PathVariable Long id,
+                                         @Valid @RequestBody CriarSolicitacaoRequest request) {
+        return facade.atualizarSolicitacao(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "Excluir solicitação em rascunho")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        facade.excluirSolicitacao(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/abrir-cotacao")

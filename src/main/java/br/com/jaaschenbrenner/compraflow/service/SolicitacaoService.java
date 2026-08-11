@@ -1,6 +1,7 @@
 package br.com.jaaschenbrenner.compraflow.service;
 
 import java.time.Year;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -34,14 +35,27 @@ public class SolicitacaoService {
                 request.justificativa().trim(),
                 request.criterioAvaliacao());
 
-        for (ItemSolicitacaoRequest item : request.itens()) {
-            solicitacao.adicionarItem(new ItemSolicitacao(
-                    item.descricao().trim(),
-                    item.quantidade(),
-                    item.unidade().trim().toUpperCase(Locale.ROOT),
-                    item.especificacao()));
-        }
+        itensDoRequest(request).forEach(solicitacao::adicionarItem);
         return solicitacaoRepository.save(solicitacao);
+    }
+
+    @Transactional
+    public SolicitacaoCompra atualizar(Long id, CriarSolicitacaoRequest request) {
+        SolicitacaoCompra solicitacao = buscar(id);
+        solicitacao.atualizarRascunho(
+                request.solicitante().trim(),
+                request.departamento().trim(),
+                request.justificativa().trim(),
+                request.criterioAvaliacao(),
+                itensDoRequest(request));
+        return solicitacaoRepository.save(solicitacao);
+    }
+
+    @Transactional
+    public void excluir(Long id) {
+        SolicitacaoCompra solicitacao = buscar(id);
+        solicitacao.validarExclusao();
+        solicitacaoRepository.delete(solicitacao);
     }
 
     @Transactional(readOnly = true)
@@ -79,6 +93,18 @@ public class SolicitacaoService {
     @Transactional
     public SolicitacaoCompra salvar(SolicitacaoCompra solicitacao) {
         return solicitacaoRepository.save(solicitacao);
+    }
+
+    private List<ItemSolicitacao> itensDoRequest(CriarSolicitacaoRequest request) {
+        List<ItemSolicitacao> itens = new ArrayList<>();
+        for (ItemSolicitacaoRequest item : request.itens()) {
+            itens.add(new ItemSolicitacao(
+                    item.descricao().trim(),
+                    item.quantidade(),
+                    item.unidade().trim().toUpperCase(Locale.ROOT),
+                    item.especificacao()));
+        }
+        return itens;
     }
 
     private String novoCodigo() {

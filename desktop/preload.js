@@ -12,5 +12,9 @@ contextBridge.exposeInMainWorld('compraflow', {
   },
   app: {
     showDataFolder: () => ipcRenderer.invoke('app:show-data-folder')
+  },
+  document: {
+    print: (html) => ipcRenderer.invoke('document:print', { html }),
+    savePdf: (html, filename) => ipcRenderer.invoke('document:save-pdf', { html, filename })
   }
 });

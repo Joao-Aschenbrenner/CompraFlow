@@ -56,6 +56,14 @@ public class CompraFacade {
         return mapper.toResponse(solicitacaoService.criar(request));
     }
 
+    public SolicitacaoResponse atualizarSolicitacao(Long id, CriarSolicitacaoRequest request) {
+        return mapper.toResponse(solicitacaoService.atualizar(id, request));
+    }
+
+    public void excluirSolicitacao(Long id) {
+        solicitacaoService.excluir(id);
+    }
+
     public List<SolicitacaoResponse> listarSolicitacoes() {
         return solicitacaoService.listar().stream().map(mapper::toResponse).toList();
     }

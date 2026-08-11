@@ -6,14 +6,12 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'none';" />
   <title>CompraFlow</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="enhancements.css" />
 </head>
 <body>
   <div id="appShell" class="app-shell">
     <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-mark">CF</div>
-        <div><strong>CompraFlow</strong><span>Compras & Cotações</span></div>
-      </div>
+      <div class="brand"><div class="brand-mark">CF</div><div><strong>CompraFlow</strong><span>Compras & Cotações</span></div></div>
       <nav id="nav" class="nav">
         <button class="nav-item active" data-view="dashboard"><span>⌂</span> Visão geral</button>
         <button class="nav-item" data-view="solicitacoes"><span>▤</span> Solicitações</button>
@@ -21,75 +19,27 @@
         <button class="nav-item" data-view="fornecedores"><span>◫</span> Fornecedores</button>
         <button class="nav-item" data-view="sobre"><span>?</span> Sobre o projeto</button>
       </nav>
-      <div class="sidebar-footer">
-        <div class="backend-dot"><i id="backendDot"></i><span id="backendLabel">Backend local</span></div>
-        <small id="appVersion">CompraFlow Desktop</small>
-      </div>
+      <div class="sidebar-footer"><div class="backend-dot"><i id="backendDot"></i><span id="backendLabel">Backend local</span></div><small id="appVersion">CompraFlow Desktop</small></div>
     </aside>
-
     <main class="main">
       <header class="topbar">
-        <div>
-          <h1 id="pageTitle">Visão geral</h1>
-          <p id="pageSubtitle">Acompanhe o fluxo de compras e cotações.</p>
-        </div>
-        <div class="top-actions">
-          <button class="btn ghost" id="refreshButton">↻ Atualizar</button>
-          <button class="btn primary" data-go="nova">＋ Nova solicitação</button>
-        </div>
+        <div><h1 id="pageTitle">Visão geral</h1><p id="pageSubtitle">Acompanhe o fluxo de compras e cotações.</p></div>
+        <div class="top-actions"><button class="btn ghost" id="refreshButton">↻ Atualizar</button><button class="btn primary" data-go="nova">＋ Nova solicitação</button></div>
       </header>
       <section id="content" class="content"></section>
     </main>
   </div>
-
   <div id="toastContainer" class="toast-container"></div>
 
-  <dialog id="supplierDialog" class="dialog">
-    <form method="dialog" id="supplierForm">
-      <div class="dialog-head"><div><h3>Novo fornecedor</h3><p>Cadastre um fornecedor para participar das cotações.</p></div><button class="icon-btn" value="cancel">×</button></div>
-      <label>Razão social<input name="razaoSocial" required maxlength="160" placeholder="Ex.: Alpha Suprimentos Ltda." /></label>
-      <label>CNPJ<input name="cnpj" required inputmode="numeric" maxlength="14" pattern="\d{14}" placeholder="Somente 14 números" /></label>
-      <label>E-mail<input name="email" required type="email" maxlength="180" placeholder="comercial@empresa.com.br" /></label>
-      <div class="dialog-actions"><button class="btn ghost" value="cancel">Cancelar</button><button class="btn primary" id="saveSupplierButton" value="default">Salvar fornecedor</button></div>
-    </form>
-  </dialog>
+  <dialog id="supplierDialog" class="dialog"><form method="dialog" id="supplierForm"><div class="dialog-head"><div><h3>Novo fornecedor</h3><p>Cadastre um fornecedor para participar das cotações.</p></div><button class="icon-btn" value="cancel">×</button></div><label>Razão social<input name="razaoSocial" required maxlength="160" placeholder="Ex.: Alpha Suprimentos Ltda." /></label><label>CNPJ<input name="cnpj" required inputmode="numeric" maxlength="14" pattern="\d{14}" placeholder="Somente 14 números" /></label><label>E-mail<input name="email" required type="email" maxlength="180" placeholder="comercial@empresa.com.br" /></label><div class="dialog-actions"><button class="btn ghost" value="cancel">Cancelar</button><button class="btn primary" id="saveSupplierButton" value="default">Salvar fornecedor</button></div></form></dialog>
 
-  <dialog id="quoteDialog" class="dialog wide">
-    <form method="dialog" id="quoteForm">
-      <div class="dialog-head"><div><h3>Registrar cotação</h3><p>Inclua a proposta recebida de um fornecedor.</p></div><button class="icon-btn" value="cancel">×</button></div>
-      <input type="hidden" name="solicitacaoId" />
-      <div class="form-grid two">
-        <label>Fornecedor<select name="fornecedorId" required></select></label>
-        <label>Moeda<select name="moeda"><option>BRL</option><option>USD</option><option>EUR</option></select></label>
-        <label>Valor dos produtos<input name="valorProdutos" required type="number" min="0.01" step="0.01" /></label>
-        <label>Frete<input name="frete" required type="number" min="0" step="0.01" value="0" /></label>
-        <label>Prazo de entrega (dias)<input name="prazoEntregaDias" required type="number" min="1" value="7" /></label>
-        <label>Prazo de pagamento (dias)<input name="prazoPagamentoDias" required type="number" min="0" value="30" /></label>
-      </div>
-      <label>Validade da proposta<input name="validade" required type="date" /></label>
-      <div class="dialog-actions"><button class="btn ghost" value="cancel">Cancelar</button><button class="btn primary" value="default">Registrar cotação</button></div>
-    </form>
-  </dialog>
+  <dialog id="quoteDialog" class="dialog wide"><form method="dialog" id="quoteForm"><div class="dialog-head"><div><h3>Registrar cotação</h3><p>Inclua a proposta recebida de um fornecedor.</p></div><button class="icon-btn" value="cancel">×</button></div><input type="hidden" name="solicitacaoId" /><div class="form-grid two"><label>Fornecedor<select name="fornecedorId" required></select></label><label>Moeda<select name="moeda"><option>BRL</option><option>USD</option><option>EUR</option></select></label><label>Valor dos produtos<input name="valorProdutos" required type="number" min="0.01" step="0.01" /></label><label>Frete<input name="frete" required type="number" min="0" step="0.01" value="0" /></label><label>Prazo de entrega (dias)<input name="prazoEntregaDias" required type="number" min="1" value="7" /></label><label>Prazo de pagamento (dias)<input name="prazoPagamentoDias" required type="number" min="0" value="30" /></label></div><label>Validade da proposta<input name="validade" required type="date" /></label><div class="dialog-actions"><button class="btn ghost" value="cancel">Cancelar</button><button class="btn primary" value="default">Registrar cotação</button></div></form></dialog>
 
-  <dialog id="approvalDialog" class="dialog">
-    <form method="dialog" id="approvalForm">
-      <div class="dialog-head"><div><h3>Aprovar solicitação</h3><p>Informe o nível do aprovador responsável.</p></div><button class="icon-btn" value="cancel">×</button></div>
-      <input type="hidden" name="solicitacaoId" />
-      <label>Nível do aprovador<select name="nivelAprovador"><option>COORDENADOR</option><option>GERENTE</option><option>DIRETOR</option><option>DIRETORIA</option></select></label>
-      <label>Observação<textarea name="observacao" rows="4" maxlength="500" placeholder="Opcional"></textarea></label>
-      <div class="dialog-actions"><button class="btn ghost" value="cancel">Cancelar</button><button class="btn success" value="default">Confirmar aprovação</button></div>
-    </form>
-  </dialog>
+  <dialog id="approvalDialog" class="dialog"><form method="dialog" id="approvalForm"><div class="dialog-head"><div><h3>Aprovar solicitação</h3><p>Informe o nível do aprovador responsável.</p></div><button class="icon-btn" value="cancel">×</button></div><input type="hidden" name="solicitacaoId" /><label>Nível do aprovador<select name="nivelAprovador"><option>COORDENADOR</option><option>GERENTE</option><option>DIRETOR</option><option>DIRETORIA</option></select></label><label>Observação<textarea name="observacao" rows="4" maxlength="500" placeholder="Opcional"></textarea></label><div class="dialog-actions"><button class="btn ghost" value="cancel">Cancelar</button><button class="btn success" value="default">Confirmar aprovação</button></div></form></dialog>
 
-  <dialog id="rejectDialog" class="dialog">
-    <form method="dialog" id="rejectForm">
-      <div class="dialog-head"><div><h3>Rejeitar solicitação</h3><p>Registre o motivo para manter o histórico da decisão.</p></div><button class="icon-btn" value="cancel">×</button></div>
-      <input type="hidden" name="solicitacaoId" />
-      <label>Motivo<textarea name="motivo" rows="5" maxlength="500" required></textarea></label>
-      <div class="dialog-actions"><button class="btn ghost" value="cancel">Cancelar</button><button class="btn danger" value="default">Rejeitar</button></div>
-    </form>
-  </dialog>
+  <dialog id="rejectDialog" class="dialog"><form method="dialog" id="rejectForm"><div class="dialog-head"><div><h3>Rejeitar solicitação</h3><p>Registre o motivo para manter o histórico da decisão.</p></div><button class="icon-btn" value="cancel">×</button></div><input type="hidden" name="solicitacaoId" /><label>Motivo<textarea name="motivo" rows="5" maxlength="500" required></textarea></label><div class="dialog-actions"><button class="btn ghost" value="cancel">Cancelar</button><button class="btn danger" value="default">Rejeitar</button></div></form></dialog>
 
   <script src="app.js"></script>
+  <script src="enhancements.js"></script>
 </body>
 </html>
