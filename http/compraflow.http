@@ -1,0 +1,81 @@
+@baseUrl = http://localhost:8080
+@solicitacaoId = 1
+
+### Fornecedores
+GET {{baseUrl}}/api/fornecedores
+
+### Criar solicitação
+POST {{baseUrl}}/api/solicitacoes
+Content-Type: application/json
+
+{
+  "solicitante": "João",
+  "departamento": "Tecnologia",
+  "justificativa": "Renovação de monitores da equipe",
+  "criterioAvaliacao": "CUSTO_BENEFICIO",
+  "itens": [
+    {
+      "descricao": "Monitor 27 polegadas",
+      "quantidade": 4,
+      "unidade": "UN",
+      "especificacao": "IPS, QHD"
+    }
+  ]
+}
+
+### Abrir cotação
+POST {{baseUrl}}/api/solicitacoes/{{solicitacaoId}}/abrir-cotacao
+
+### Cotação 1
+POST {{baseUrl}}/api/solicitacoes/{{solicitacaoId}}/cotacoes
+Content-Type: application/json
+
+{
+  "fornecedorId": 1,
+  "valorProdutos": 4000.00,
+  "frete": 200.00,
+  "moeda": "BRL",
+  "prazoEntregaDias": 8,
+  "prazoPagamentoDias": 30,
+  "validade": "2030-12-31"
+}
+
+### Cotação 2
+POST {{baseUrl}}/api/solicitacoes/{{solicitacaoId}}/cotacoes
+Content-Type: application/json
+
+{
+  "fornecedorId": 2,
+  "valorProdutos": 3900.00,
+  "frete": 150.00,
+  "moeda": "BRL",
+  "prazoEntregaDias": 15,
+  "prazoPagamentoDias": 10,
+  "validade": "2030-12-31"
+}
+
+### Cotação 3
+POST {{baseUrl}}/api/solicitacoes/{{solicitacaoId}}/cotacoes
+Content-Type: application/json
+
+{
+  "fornecedorId": 3,
+  "valorProdutos": 4300.00,
+  "frete": 50.00,
+  "moeda": "BRL",
+  "prazoEntregaDias": 3,
+  "prazoPagamentoDias": 30,
+  "validade": "2030-12-31"
+}
+
+### Avaliar cotações
+POST {{baseUrl}}/api/solicitacoes/{{solicitacaoId}}/avaliar
+
+### Aprovar
+POST {{baseUrl}}/api/solicitacoes/{{solicitacaoId}}/aprovar
+Content-Type: application/json
+
+{
+  "nivelAprovador": "GERENTE",
+  "observacao": "Compra aprovada dentro do orçamento."
+}
