@@ -18,7 +18,7 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 35
     env:
-      DESKTOP_TAG: v1.2.0-desktop
+      DESKTOP_TAG: v1.2.1-desktop
       CSC_IDENTITY_AUTO_DISCOVERY: 'false'
 
     steps:
@@ -36,7 +36,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate Electron sources
+      - name: Validate Electron sources and desktop contracts
         working-directory: desktop
         run: npm run check
       - name: Install Electron dependencies
@@ -66,7 +66,7 @@ jobs:
       - name: Upload workflow artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: CompraFlow-Desktop-Windows-1.2.0
+          name: CompraFlow-Desktop-Windows-1.2.1
           path: desktop/dist/*.exe
           if-no-files-found: error
       - name: Create GitHub pre-release
@@ -80,8 +80,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             gh release create $env:DESKTOP_TAG `
               --target $env:GITHUB_SHA `
-              --title 'CompraFlow Desktop v1.2.0 - CRUD e PDF' `
+              --title 'CompraFlow Desktop v1.2.1 - Compatibilidade de edição' `
               --prerelease `
-              --notes 'Adiciona edição e exclusão segura de solicitações em rascunho, impressão do pedido e geração de PDF A4, mantendo backend Spring Boot, H2 persistente e JRE 21 embutido.'
+              --notes 'Hotfix: integra Editar, Excluir, Imprimir e Salvar PDF diretamente no renderer principal. Solicitações antigas em RASCUNHO continuam editáveis sem migração ou perda do banco H2.'
           }
           foreach ($asset in $assets) { gh release upload $env:DESKTOP_TAG $asset.FullName --clobber }
