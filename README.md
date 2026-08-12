@@ -1,8 +1,38 @@
 # CompraFlow
 
-API REST para gerenciamento de **solicitações de compra, cotações de fornecedores e aprovação de compras**, criada do zero para praticar Design Patterns com Java e Spring Boot.
+Sistema de **solicitações de compras, cotações de fornecedores e aprovação de compras**, desenvolvido com Java, Spring Boot e Electron para aplicar Design Patterns em um domínio próprio.
 
-> Projeto educacional desenvolvido para o desafio **Design Patterns com Java: Dos Clássicos (GoF) ao Spring Framework**, da DIO. O domínio e a implementação do CompraFlow são diferentes do exemplo Cliente + ViaCEP apresentado no laboratório.
+> Projeto educacional desenvolvido para o desafio **Design Patterns com Java: Dos Clássicos (GoF) ao Spring Framework**, dentro da trilha [Santander 2026 - Java Backend da DIO](https://web.dio.me/track/santander-2026-java-backend).
+
+## 🚀 Versão pronta para avaliação
+
+Para testar o projeto sem precisar configurar Java ou Maven, utilize a versão desktop mais recente:
+
+- **[Baixar CompraFlow Portable v1.2.1](https://github.com/Joao-Aschenbrenner/CompraFlow/releases/download/v1.2.1-desktop/CompraFlow-Portable-1.2.1-x64.exe)** — basta baixar e executar.
+- **[Baixar CompraFlow Setup v1.2.1](https://github.com/Joao-Aschenbrenner/CompraFlow/releases/download/v1.2.1-desktop/CompraFlow-Setup-1.2.1-x64.exe)** — instalador para Windows x64.
+- **[Ver a release atual](https://github.com/Joao-Aschenbrenner/CompraFlow/releases/tag/v1.2.1-desktop)**.
+
+A versão desktop inclui **JRE 21 embutido**, backend Spring Boot local e banco H2 persistente. O usuário pode cadastrar fornecedores, criar e editar solicitações, registrar cotações, avaliar propostas, aprovar/rejeitar compras, imprimir pedidos e salvar documentos em PDF.
+
+## 🎓 Projeto da trilha Santander 2026 + uso de IA
+
+O CompraFlow foi criado como uma implementação própria para praticar os conceitos apresentados na trilha **Santander 2026 - Java Backend da DIO**.
+
+Além dos conteúdos de Java, Spring Framework, APIs REST, persistência, testes e Design Patterns, foram utilizados **conceitos e práticas de Inteligência Artificial generativa trabalhados durante a formação como apoio ao processo de desenvolvimento**.
+
+A IA foi utilizada como ferramenta de apoio em etapas como:
+
+- ideação e refinamento do domínio do projeto;
+- planejamento da arquitetura e divisão de responsabilidades;
+- apoio à implementação e refatoração;
+- revisão de código e identificação de possíveis erros;
+- criação e expansão de testes automatizados;
+- análise de falhas durante os ciclos de build e release;
+- geração e revisão da documentação técnica.
+
+O uso de IA fez parte do processo de aprendizado e desenvolvimento, enquanto as decisões de domínio, arquitetura, validações, testes e evolução do CompraFlow foram consolidadas no próprio projeto e verificadas através de testes automatizados e GitHub Actions.
+
+O CompraFlow **não é um fork nem uma cópia do exemplo Cliente/ViaCEP do laboratório**. O domínio de solicitações de compra, fornecedores, cotações e aprovação foi escolhido especificamente para esta entrega.
 
 ## Objetivo
 
@@ -10,13 +40,15 @@ O CompraFlow simula um processo comum em empresas:
 
 1. cadastrar fornecedores;
 2. criar uma solicitação de compra com um ou mais itens;
-3. abrir a solicitação para cotação;
-4. registrar propostas de fornecedores;
-5. comparar as propostas usando um critério configurável;
-6. identificar o nível de aprovação necessário;
-7. aprovar ou rejeitar a compra.
+3. editar ou excluir solicitações ainda em rascunho;
+4. abrir a solicitação para cotação;
+5. registrar propostas de diferentes fornecedores;
+6. comparar as propostas usando um critério configurável;
+7. identificar automaticamente o nível de aprovação necessário;
+8. aprovar ou rejeitar a compra;
+9. imprimir a solicitação ou salvá-la em PDF.
 
-O projeto foi intencionalmente mantido pequeno o suficiente para ser estudado, mas estruturado como uma API real.
+O projeto foi mantido pequeno o suficiente para permitir o estudo de cada padrão, mas organizado como uma aplicação real, com backend, persistência, API REST, testes, documentação e cliente desktop.
 
 ## Design Patterns aplicados
 
@@ -24,35 +56,35 @@ O projeto foi intencionalmente mantido pequeno o suficiente para ser estudado, m
 
 Há duas demonstrações do conceito:
 
-- `MoneyRoundingPolicy`: Singleton clássico com **Initialization-on-demand Holder**. Centraliza a política de arredondamento monetário.
-- `PoliticasCompraProperties`: bean gerenciado pelo Spring. Como não há escopo diferente configurado, o container mantém uma única instância do componente durante a aplicação.
+- `MoneyRoundingPolicy`: Singleton clássico com **Initialization-on-demand Holder**, centralizando a política de arredondamento monetário.
+- `PoliticasCompraProperties`: bean gerenciado pelo Spring. Como não existe outro escopo configurado, o container mantém uma única instância durante o ciclo de vida da aplicação.
 
 ### 2. Strategy — comportamental
 
-A interface `SelecionarCotacaoStrategy` define o contrato para escolher a melhor proposta. Existem três algoritmos intercambiáveis:
+A interface `SelecionarCotacaoStrategy` define o contrato para escolha da melhor proposta. Existem três algoritmos intercambiáveis:
 
-- `MenorPrecoStrategy` — menor valor total em BRL;
-- `MenorPrazoStrategy` — menor prazo de entrega;
-- `CustoBeneficioStrategy` — pondera 60% preço, 25% prazo de entrega e 15% condição de pagamento.
+- `MenorPrecoStrategy` — seleciona o menor valor total em BRL;
+- `MenorPrazoStrategy` — seleciona o menor prazo de entrega;
+- `CustoBeneficioStrategy` — pondera preço, prazo de entrega e condição de pagamento.
 
-A solicitação escolhe o critério no momento do cadastro. O `CotacaoStrategyResolver` localiza a implementação adequada sem `if/else` espalhado pelo sistema.
+A solicitação define o critério de avaliação e o `CotacaoStrategyResolver` localiza a estratégia adequada sem espalhar condicionais pelo sistema.
 
 ### 3. Facade — estrutural
 
-`CompraFacade` é a porta de entrada da camada HTTP. Os controllers não precisam conhecer detalhes de:
+`CompraFacade` funciona como a porta de entrada da camada HTTP. Os controllers não precisam conhecer detalhes de:
 
 - persistência JPA;
-- validações de negócio;
-- conversão de moeda;
+- regras e validações de negócio;
+- conversão de moedas;
 - seleção da Strategy;
 - cadeia de aprovação;
 - mapeamento de DTOs.
 
 A Facade expõe operações simples e coordena os subsistemas internos.
 
-### 4. Chain of Responsibility — bônus
+### 4. Chain of Responsibility — evolução adicional
 
-O fluxo de aprovação é uma evolução própria do desafio:
+O fluxo de aprovação foi implementado como evolução própria do desafio:
 
 ```text
 até R$ 2.000       -> COORDENADOR
@@ -61,15 +93,20 @@ até R$ 50.000      -> DIRETOR
 acima de R$ 50.000 -> DIRETORIA
 ```
 
-Cada `ApprovalHandler` decide se pode tratar o valor ou encaminha a responsabilidade para o próximo elo.
+Cada `ApprovalHandler` verifica se possui responsabilidade suficiente para tratar a solicitação ou encaminha a decisão ao próximo elo da cadeia.
 
 ## Arquitetura
 
 ```text
-HTTP / Swagger
+Electron Desktop
       |
+      | IPC seguro
       v
-Controllers
+Electron Main
+      |
+      | HTTP localhost
+      v
+Controllers REST
       |
       v
 CompraFacade                         <- FACADE
@@ -105,33 +142,52 @@ PoliticasCompraProperties                                <- SINGLETON via Spring
 - Spring Cloud OpenFeign
 - H2 Database
 - Springdoc OpenAPI / Swagger UI
-- JUnit 5 + Spring Boot Test + MockMvc
+- JUnit 5
+- Spring Boot Test
+- MockMvc
 - Maven
+- Electron
+- GitHub Actions
+
+## Aplicação desktop
+
+O cliente Electron inicia automaticamente o backend Spring Boot usando o JRE 21 empacotado com a aplicação.
+
+Principais funcionalidades disponíveis na interface:
+
+- cadastro e consulta de fornecedores;
+- criação de solicitações com múltiplos itens;
+- edição e exclusão de solicitações em `RASCUNHO`;
+- abertura do processo de cotação;
+- registro de propostas;
+- avaliação por menor preço, menor prazo ou custo-benefício;
+- aprovação e rejeição;
+- impressão da solicitação;
+- geração de PDF A4;
+- persistência local do banco de dados.
 
 ## Integração de câmbio
 
 As propostas podem ser registradas em `BRL`, `USD` ou `EUR`.
 
 - para BRL, nenhum serviço externo é necessário;
-- para USD/EUR, `CambioService` usa OpenFeign para consultar a taxa e normalizar a proposta em BRL antes de executar a Strategy.
+- para USD/EUR, `CambioService` utiliza OpenFeign para consultar a taxa e normalizar a proposta em BRL antes de executar a Strategy.
 
-A integração é propositalmente opcional: todo o roteiro principal de demonstração funciona somente com H2 local.
+A integração é opcional: o fluxo principal pode ser demonstrado totalmente em BRL e com banco local.
 
-## Como executar
+## Como executar pelo código-fonte
 
 Pré-requisitos:
 
 - JDK 21+
 - Maven 3.9+
 
-No terminal:
-
 ```bash
 mvn clean test
 mvn spring-boot:run
 ```
 
-Depois acesse:
+Swagger:
 
 ```text
 http://localhost:8080/swagger-ui.html
@@ -150,27 +206,32 @@ Password: (vazio)
 
 Ao iniciar, três fornecedores fictícios são cadastrados automaticamente.
 
-1. `GET /api/fornecedores`
-2. `POST /api/solicitacoes`
-3. `POST /api/solicitacoes/{id}/abrir-cotacao`
-4. registrar três propostas em `POST /api/solicitacoes/{id}/cotacoes`
-5. `POST /api/solicitacoes/{id}/avaliar`
-6. `POST /api/solicitacoes/{id}/aprovar`
+1. cadastrar ou consultar fornecedores;
+2. criar uma solicitação;
+3. abrir a solicitação para cotação;
+4. registrar pelo menos três propostas;
+5. executar a avaliação;
+6. verificar a proposta selecionada pela Strategy;
+7. conferir o nível de aprovação definido pela Chain of Responsibility;
+8. aprovar ou rejeitar;
+9. imprimir ou gerar o PDF da solicitação.
 
 Existe um roteiro completo em [`docs/ROTEIRO_DEMO.md`](docs/ROTEIRO_DEMO.md) e requisições prontas em [`http/compraflow.http`](http/compraflow.http).
 
 ## Regras de negócio demonstradas
 
 - uma solicitação nasce como `RASCUNHO`;
+- solicitações em rascunho podem ser editadas ou excluídas;
 - cotações só são aceitas após abertura da fase `EM_COTACAO`;
 - o mesmo fornecedor não pode cotar duas vezes a mesma solicitação;
 - a avaliação exige no mínimo três cotações válidas;
 - cotações vencidas não participam da seleção;
 - todas as propostas são comparadas em BRL;
-- somente o nível hierárquico adequado (ou superior) pode aprovar;
-- erros de negócio, validação, recurso inexistente e integração externa retornam respostas HTTP distintas.
+- somente o nível hierárquico adequado ou superior pode aprovar;
+- impressão e PDF estão disponíveis independentemente do status do processo;
+- erros de negócio, validação, recurso inexistente e integração externa possuem respostas HTTP distintas.
 
-## Testes
+## Testes e CI
 
 O projeto contém testes para:
 
@@ -178,13 +239,17 @@ O projeto contém testes para:
 - cada Strategy;
 - Chain of Responsibility;
 - escopo Singleton do Spring;
-- fluxo E2E da API via MockMvc, sem depender de internet.
+- fluxo da API via MockMvc;
+- edição e exclusão de solicitações;
+- contratos do desktop para Editar, Excluir, Imprimir e Salvar PDF.
 
-Execute:
+Execute localmente:
 
 ```bash
 mvn clean test
 ```
+
+O GitHub Actions também executa os testes e o pipeline de build do aplicativo Windows antes da publicação das releases.
 
 ## Estrutura principal
 
@@ -208,20 +273,27 @@ src/main/java/br/com/jaaschenbrenner/compraflow
 │   └── strategy
 ├── repository
 └── service
+
+desktop
+├── main.js
+├── preload.js
+└── renderer
 ```
 
-## Sobre originalidade e uso de IA
+## Originalidade e transparência
 
-O CompraFlow **não é um fork do projeto Cliente/ViaCEP do laboratório**. O problema de negócio, entidades, endpoints e aplicação dos padrões foram construídos especificamente para este desafio.
+Este repositório foi criado para o desafio da DIO utilizando um **domínio próprio de compras e cotações**.
 
-Ferramentas de IA foram usadas como apoio para arquitetura, revisão, geração de testes e documentação. A recomendação antes da entrega é executar o projeto, revisar os arquivos e conseguir explicar onde e por que cada padrão foi usado.
+O exemplo Cliente/ViaCEP apresentado no laboratório serviu para o estudo dos conceitos, mas não foi utilizado como domínio desta implementação. Singleton, Strategy e Facade foram reaplicados a um cenário diferente, e Chain of Responsibility foi acrescentado como evolução.
+
+O uso de Inteligência Artificial é declarado de forma transparente: IA generativa foi utilizada como **ferramenta de apoio ao aprendizado e ao ciclo de desenvolvimento**, seguindo a proposta de combinar os conhecimentos técnicos estudados na trilha com ferramentas modernas de desenvolvimento.
 
 ## Possíveis evoluções
 
 - autenticação e perfis de usuário;
 - anexos de propostas comerciais;
-- histórico/auditoria de alterações;
-- pedido de compra após aprovação;
+- histórico e auditoria de alterações;
+- geração de pedido de compra após aprovação;
 - envio de convite de cotação por e-mail;
 - persistência em PostgreSQL/MySQL;
-- front-end React/Angular.
+- dashboards e relatórios gerenciais.
