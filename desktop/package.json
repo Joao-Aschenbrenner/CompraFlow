@@ -1,6 +1,6 @@
 {
   "name": "compraflow-desktop",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "private": true,
   "description": "Cliente desktop Electron para o CompraFlow",
   "author": "Joao Aschenbrenner",
@@ -8,7 +8,7 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "check": "node --check main.js && node --check preload.js && node --check renderer/app.js && node --check renderer/enhancements.js",
+    "check": "node --check main.js && node --check preload.js && node --check renderer/app.js && node test-contract.js",
     "dist:win": "electron-builder --win nsis portable --x64"
   },
   "devDependencies": {
@@ -20,7 +20,7 @@
     "productName": "CompraFlow",
     "asar": true,
     "directories": { "output": "dist" },
-    "files": ["main.js", "preload.js", "renderer/**/*", "package.json"],
+    "files": ["main.js", "preload.js", "test-contract.js", "renderer/**/*", "package.json"],
     "extraResources": [
       { "from": "runtime/backend/compraflow.jar", "to": "backend/compraflow.jar" },
       { "from": "runtime/jre", "to": "jre" }
